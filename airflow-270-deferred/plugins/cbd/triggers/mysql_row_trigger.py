@@ -15,7 +15,7 @@ class MySQLRowTrigger(BaseTrigger):
 
     def serialize(self) -> tuple[str, dict[str, Any]]:
         return (
-            "mysql_row_trigger.MySQLRowTrigger",
+            "cbd.triggers.mysql_row_trigger.MySQLRowTrigger",
             {
                 "host": self.host,
                 "user": self.user,

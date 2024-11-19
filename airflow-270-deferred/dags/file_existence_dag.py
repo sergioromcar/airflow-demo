@@ -1,5 +1,5 @@
 from airflow import DAG
-from file_existence_operator import FileExistenceOperator
+from cbd.operators.file_existence_operator import FileExistenceOperator
 from datetime import datetime
 
 with DAG(

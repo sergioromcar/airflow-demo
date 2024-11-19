@@ -30,6 +30,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
+      - ./logs:/opt/airflow/logs
     depends_on:
       - airflow-init
     command: >
@@ -48,6 +49,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
+      - ./logs:/opt/airflow/logs
     command: airflow scheduler
 
   airflow-triggerer:
@@ -61,6 +63,7 @@ services:
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
+      - ./logs:/opt/airflow/logs
     depends_on:
       - mysql
 

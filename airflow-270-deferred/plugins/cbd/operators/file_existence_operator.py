@@ -3,7 +3,7 @@ from typing import Any, Sequence
 from airflow.models.baseoperator import BaseOperator
 from airflow.utils.context import Context
 from airflow.triggers.base import TriggerEvent
-from file_existence_trigger import FileExistenceTrigger
+from cbd.triggers.file_existence_trigger import FileExistenceTrigger
 import os 
 
 class FileExistenceOperator(BaseOperator):

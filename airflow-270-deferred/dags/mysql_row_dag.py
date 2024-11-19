@@ -1,6 +1,6 @@
 from datetime import datetime
 from airflow import DAG
-from mysql_row_operator import MySQLRowExistenceOperator
+from cbd.operators.mysql_row_operator import MySQLRowExistenceOperator
 
 default_args = {
     "owner": "airflow",
@@ -9,7 +9,7 @@ default_args = {
 }
 
 with DAG(
-    dag_id="demo_deferred_dag",
+    dag_id="mysql_row_dag",
     default_args=default_args,
     schedule_interval=None,
     catchup=False,

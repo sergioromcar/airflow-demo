@@ -18,7 +18,7 @@ class FileExistenceTrigger(BaseTrigger):
         Serializa el Trigger para que pueda ser reusado.
         """
         return (
-            "file_existence_trigger.FileExistenceTrigger",
+            "cbd.triggers.file_existence_trigger.FileExistenceTrigger",
             {"file_path": self.file_path, "poll_interval": self.poll_interval},
         )
 

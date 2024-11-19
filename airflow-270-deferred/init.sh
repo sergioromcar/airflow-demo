@@ -1,10 +1,2 @@
-docker-compose run airflow-webserver airflow db init
-
-
-docker-compose run airflow-webserver airflow users create \
-    --username admin \
-    --password admin \
-    --firstname Admin \
-    --lastname User \
-    --role Admin \
-    --email admin@example.com
+mkdir -p ./logs
+sudo chown -R 50000:50000 ./logs

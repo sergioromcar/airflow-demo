@@ -2,7 +2,7 @@ from typing import Any, Sequence
 from airflow.models.baseoperator import BaseOperator
 from airflow.utils.context import Context
 from airflow.triggers.base import TriggerEvent
-from mysql_row_trigger import MySQLRowTrigger
+from cbd.triggers.mysql_row_trigger import MySQLRowTrigger
 
 class MySQLRowExistenceOperator(BaseOperator):
     template_fields: Sequence[str] = ("host", "database")

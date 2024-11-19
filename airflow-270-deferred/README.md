@@ -6,7 +6,7 @@ En esta demostración veremos el uso de los operadores y los triggers usando el 
 Creación del fichero para que salte el trigger y vuelva a la ejecución del DAG
 
 ```
-touch /opt/airflow/dags/trigger-file.txt
+touch ./dags/trigger-file.txt
 ```
 
 ## Ejemplo 2
