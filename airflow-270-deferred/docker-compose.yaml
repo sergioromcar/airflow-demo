@@ -1,20 +1,27 @@
 services:
+
   mysql:
-    image: mysql:8.0
     container_name: mysql
-    restart: always
+    image: "mysql:8.0.31"
+    command: mysqld --default-authentication-plugin=mysql_native_password --character-set-server=utf8mb4 --collation-server=utf8mb4_0900_ai_ci
     environment:
       MYSQL_ROOT_PASSWORD: root
       MYSQL_DATABASE: airflow
       MYSQL_USER: airflow
       MYSQL_PASSWORD: airflow
+    healthcheck:
+      test: mysqladmin ping -h 127.0.0.1 -u airflow --password=airflow
+      interval: 30s  # Intervalo entre chequeos
+      timeout: 240s   # Tiempo de espera antes de considerar fallido el chequeo
+      retries: 10     # Número de intentos antes de marcar como unhealthy
     ports:
-      - "3306:3306"
-    command: >
-      --default-authentication-plugin=mysql_native_password
+      - '3306:3306'
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE
     volumes:
-      - mysql-data:/var/lib/mysql
       - ./mysql-init:/docker-entrypoint-initdb.d
+    networks:
+      - airflow_network
 
   airflow-webserver:
     image: apache/airflow:2.7.0-python3.11
@@ -25,6 +32,8 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW_CONN_AIRFLOW_DB=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - SQLALCHEMY_SILENCE_UBER_WARNING=1
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
     volumes:
@@ -35,6 +44,8 @@ services:
       - airflow-init
     command: >
       bash -c "airflow db upgrade && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin && airflow webserver"
+    networks:
+      - airflow_network
 
   airflow-scheduler:
     image: apache/airflow:2.7.0-python3.11
@@ -45,12 +56,16 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW_CONN_AIRFLOW_DB=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - SQLALCHEMY_SILENCE_UBER_WARNING=1
       - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
       - ./logs:/opt/airflow/logs
     command: airflow scheduler
+    networks:
+      - airflow_network
 
   airflow-triggerer:
     image: apache/airflow:2.7.0-python3.11
@@ -65,7 +80,11 @@ services:
       - ./plugins:/opt/airflow/plugins
       - ./logs:/opt/airflow/logs
     depends_on:
-      - mysql
+      mysql:
+        condition: service_healthy
+        restart: "no"
+    networks:
+      - airflow_network
 
   airflow-init:
     image: apache/airflow:2.7.0-python3.11
@@ -73,14 +92,25 @@ services:
     environment:
       - AIRFLOW__CORE__EXECUTOR=LocalExecutor
       - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW_CONN_AIRFLOW_DB=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - SQLALCHEMY_SILENCE_UBER_WARNING=1
       - AIRFLOW__CORE__LOAD_EXAMPLES=False
       - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
     volumes:
       - ./dags:/opt/airflow/dags
       - ./plugins:/opt/airflow/plugins
     entrypoint: >
-      bash -c "airflow db init"
+      bash -c "sleep 30; airflow db init"
     restart: "no"
+    networks:
+      - airflow_network
+    depends_on:
+      mysql:
+        condition: service_healthy
 
 volumes:
   mysql-data:
+
+networks:
+  airflow_network:
+    driver: bridge
