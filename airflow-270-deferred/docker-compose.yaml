@@ -1,0 +1,83 @@
+services:
+  mysql:
+    image: mysql:8.0
+    container_name: mysql
+    restart: always
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: airflow
+      MYSQL_USER: airflow
+      MYSQL_PASSWORD: airflow
+    ports:
+      - "3306:3306"
+    command: >
+      --default-authentication-plugin=mysql_native_password
+    volumes:
+      - mysql-data:/var/lib/mysql
+      - ./mysql-init:/docker-entrypoint-initdb.d
+
+  airflow-webserver:
+    image: apache/airflow:2.7.0-python3.11
+    container_name: airflow-webserver
+    restart: always
+    ports:
+      - "8080:8080"
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - airflow-init
+    command: >
+      bash -c "airflow db upgrade && airflow users create --username admin --firstname Admin --lastname User --role Admin --email admin@example.com --password admin && airflow webserver"
+
+  airflow-scheduler:
+    image: apache/airflow:2.7.0-python3.11
+    container_name: airflow-scheduler
+    restart: always
+    depends_on:
+      - airflow-webserver
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./plugins:/opt/airflow/plugins
+    command: airflow scheduler
+
+  airflow-triggerer:
+    image: apache/airflow:2.7.0-python3.11
+    command: triggerer
+    restart: always
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./plugins:/opt/airflow/plugins
+    depends_on:
+      - mysql
+
+  airflow-init:
+    image: apache/airflow:2.7.0-python3.11
+    container_name: airflow-init
+    environment:
+      - AIRFLOW__CORE__EXECUTOR=LocalExecutor
+      - AIRFLOW__CORE__SQL_ALCHEMY_CONN=mysql+mysqlconnector://airflow:airflow@mysql:3306/airflow
+      - AIRFLOW__CORE__LOAD_EXAMPLES=False
+      - AIRFLOW__WEBSERVER__SECRET_KEY=aj38dk$#2LfK90mQwerTY*7zZxL4Vbn6!
+    volumes:
+      - ./dags:/opt/airflow/dags
+      - ./plugins:/opt/airflow/plugins
+    entrypoint: >
+      bash -c "airflow db init"
+    restart: "no"
+
+volumes:
+  mysql-data:

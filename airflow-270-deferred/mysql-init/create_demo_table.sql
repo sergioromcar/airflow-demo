@@ -1,0 +1,7 @@
+CREATE TABLE demo_deferred (
+    id INT AUTO_INCREMENT PRIMARY KEY,
+    fecha TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    estado VARCHAR(50)
+);
+
+INSERT INTO demo_deferred (estado) VALUES ('PENDING');
