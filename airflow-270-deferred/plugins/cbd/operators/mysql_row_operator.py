@@ -8,13 +8,13 @@ class MySQLRowExistenceOperator(BaseOperator):
     template_fields: Sequence[str] = ("host", "database")
     ui_color = "#ffefeb"
 
-    def __init__(self, host: str, user: str, password: str, database: str, poll_interval: int = 10, **kwargs):
+    def __init__(self, host: str, user: str, password: str, database: str, poke_interval: int = 10, **kwargs):
         super().__init__(**kwargs)
         self.host = host
         self.user = user
         self.password = password
         self.database = database
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
 
     def execute(self, context: Context):
         self.log.info(f"Esperando un registro en {self.database}.demo_deferred con estado 'READY'")
@@ -24,7 +24,7 @@ class MySQLRowExistenceOperator(BaseOperator):
                 user=self.user,
                 password=self.password,
                 database=self.database,
-                poll_interval=self.poll_interval,
+                poke_interval=self.poke_interval,
             ),
             method_name="execute_complete",
         )

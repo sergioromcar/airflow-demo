@@ -21,5 +21,5 @@ with DAG(
         user="airflow",
         password="airflow",
         database="airflow",
-        poll_interval=10,
+        poke_interval=10,
     )

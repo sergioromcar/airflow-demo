@@ -5,13 +5,13 @@ import mysql.connector
 from airflow.triggers.base import BaseTrigger, TriggerEvent
 
 class MySQLRowTrigger(BaseTrigger):
-    def __init__(self, host: str, user: str, password: str, database: str, poll_interval: int = 10):
+    def __init__(self, host: str, user: str, password: str, database: str, poke_interval: int = 10):
         super().__init__()
         self.host = host
         self.user = user
         self.password = password
         self.database = database
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
 
     def serialize(self) -> tuple[str, dict[str, Any]]:
         return (
@@ -21,7 +21,7 @@ class MySQLRowTrigger(BaseTrigger):
                 "user": self.user,
                 "password": self.password,
                 "database": self.database,
-                "poll_interval": self.poll_interval,
+                "poke_interval": self.poke_interval,
             },
         )
 
@@ -40,7 +40,7 @@ class MySQLRowTrigger(BaseTrigger):
                 if result:
                     yield TriggerEvent({"status": "success", "row": result})
                     return
-                await asyncio.sleep(self.poll_interval)
+                await asyncio.sleep(self.poke_interval)
             finally:
                 cursor.close()
                 conn.close()

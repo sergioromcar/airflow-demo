@@ -7,11 +7,11 @@ class DatabaseCheckTrigger(BaseTrigger):
     """
     Trigger que verifica si una condición se cumple en una tabla MySQL.
     """
-    def __init__(self, table_name: str, condition: str, poll_interval: int = 10):
+    def __init__(self, table_name: str, condition: str, poke_interval: int = 10):
         super().__init__()
         self.table_name = table_name
         self.condition = condition
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
 
     def serialize(self) -> tuple[str, dict[str, Any]]:
         """
@@ -22,7 +22,7 @@ class DatabaseCheckTrigger(BaseTrigger):
             {
                 "table_name": self.table_name,
                 "condition": self.condition,
-                "poll_interval": self.poll_interval,
+                "poke_interval": self.poke_interval,
             },
         )
 
@@ -36,4 +36,4 @@ class DatabaseCheckTrigger(BaseTrigger):
             if result:
                 yield TriggerEvent({"status": "success", "table_name": self.table_name, "condition": self.condition})
                 return
-            await asyncio.sleep(self.poll_interval)
+            await asyncio.sleep(self.poke_interval)

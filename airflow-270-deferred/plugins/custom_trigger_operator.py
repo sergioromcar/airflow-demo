@@ -14,7 +14,7 @@ class MyTrigger(BaseTrigger):
     This is an example of a custom trigger that waits for a binary random choice
     between 0 and 1 to be 1.
     Args:
-        poll_interval (int): How many seconds to wait between async polls.
+        poke_interval (int): How many seconds to wait between async polls.
         my_kwarg_passed_into_the_trigger (str): A kwarg that is passed into the trigger.
     Returns:
         my_kwarg_passed_out_of_the_trigger (str): A kwarg that is passed out of the trigger.
@@ -22,13 +22,13 @@ class MyTrigger(BaseTrigger):
 
     def __init__(
         self,
-        poll_interval: int = 60,
+        poke_interval: int = 60,
         my_kwarg_passed_into_the_trigger: str = "notset",
         my_kwarg_passed_out_of_the_trigger: str = "notset",
         # you can add more arguments here
     ):
         super().__init__()
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
         self.my_kwarg_passed_into_the_trigger = my_kwarg_passed_into_the_trigger
         self.my_kwarg_passed_out_of_the_trigger = my_kwarg_passed_out_of_the_trigger
 
@@ -43,7 +43,7 @@ class MyTrigger(BaseTrigger):
         return (
             "custom_trigger_operator.MyTrigger",  # this is the classpath for the Trigger
             {
-                "poll_interval": self.poll_interval,
+                "poke_interval": self.poke_interval,
                 "my_kwarg_passed_into_the_trigger": self.my_kwarg_passed_into_the_trigger,
                 "my_kwarg_passed_out_of_the_trigger": self.my_kwarg_passed_out_of_the_trigger,
                 # you can add more kwargs here
@@ -72,11 +72,11 @@ class MyTrigger(BaseTrigger):
                 return  # The return statement prevents the trigger from running again
             else:
                 self.log.info(
-                    f"Result was not the one we are waiting for. Sleeping for {self.poll_interval} seconds."
+                    f"Result was not the one we are waiting for. Sleeping for {self.poke_interval} seconds."
                 )
-                # If the condition is not met, the trigger sleeps for the poll_interval
+                # If the condition is not met, the trigger sleeps for the poke_interval
                 # this code can run multiple times until the condition is met
-                await asyncio.sleep(self.poll_interval)
+                await asyncio.sleep(self.poke_interval)
 
     # This is the function that is awaited in the run method
     @sync_to_async
@@ -145,7 +145,7 @@ class MyOperator(BaseOperator):
                 )
                 self.defer(
                     trigger=MyTrigger(
-                        poll_interval=self.poke_interval,
+                        poke_interval=self.poke_interval,
                         my_kwarg_passed_into_the_trigger="lemon",
                         # you can pass information into the trigger here
                     ),

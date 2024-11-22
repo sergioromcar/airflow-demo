@@ -13,11 +13,11 @@ class DatabaseCheckOperator(BaseOperator):
     template_fields: Sequence[str] = ("table_name", "condition")
     ui_color = "#ffefeb"
 
-    def __init__(self, table_name: str, condition: str, poll_interval: int = 10, **kwargs):
+    def __init__(self, table_name: str, condition: str, poke_interval: int = 10, **kwargs):
         super().__init__(**kwargs)
         self.table_name = table_name
         self.condition = condition
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
 
     def execute(self, context: Context):
         """
@@ -32,7 +32,7 @@ class DatabaseCheckOperator(BaseOperator):
         else:
             self.log.info("Condición no cumplida. Entrando en modo diferido.")
             self.defer(
-                trigger=DatabaseCheckTrigger(self.table_name, self.condition, self.poll_interval),
+                trigger=DatabaseCheckTrigger(self.table_name, self.condition, self.poke_interval),
                 method_name="execute_complete",
             )
 

@@ -13,10 +13,10 @@ class FileExistenceOperator(BaseOperator):
     template_fields: Sequence[str] = ("file_path",)
     ui_color = "#ffefeb"
 
-    def __init__(self, file_path: str, poll_interval: int = 10, **kwargs):
+    def __init__(self, file_path: str, poke_interval: int = 10, **kwargs):
         super().__init__(**kwargs)
         self.file_path = file_path
-        self.poll_interval = poll_interval
+        self.poke_interval = poke_interval
 
     def execute(self, context: Context):
         """
@@ -29,7 +29,7 @@ class FileExistenceOperator(BaseOperator):
         else:
             self.log.info(f"Archivo no encontrado. Entrando en modo diferido.")
             self.defer(
-                trigger=FileExistenceTrigger(self.file_path, self.poll_interval),
+                trigger=FileExistenceTrigger(self.file_path, self.poke_interval),
                 method_name="execute_complete",
             )
 

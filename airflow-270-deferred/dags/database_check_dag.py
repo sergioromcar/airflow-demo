@@ -12,5 +12,5 @@ with DAG(
         task_id="check_condition",
         table_name="demo_deferred",
         condition="estado = 'READY'",
-        poll_interval=10,
+        poke_interval=10,
     )

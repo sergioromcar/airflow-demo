@@ -1,4 +1,4 @@
-docker exec -it airflow-webserver airflow connections add 'mysql' \
+docker exec -it airflow-webserver airflow connections add 'airflow_db' \
     --conn-type 'mysql' \
     --conn-host 'mysql' \
     --conn-schema 'airflow' \

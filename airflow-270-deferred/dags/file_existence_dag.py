@@ -13,7 +13,7 @@ with DAG(
     wait_for_file = FileExistenceOperator(
         task_id="wait_for_file",
         file_path="/opt/airflow/dags/trigger-file.txt",
-        poll_interval=10,  # Intervalo en segundos para revisar la existencia del archivo
+        poke_interval=10,  # Intervalo en segundos para revisar la existencia del archivo
     )
 
     wait_for_file
